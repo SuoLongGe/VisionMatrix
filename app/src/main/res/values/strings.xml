@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">VisionMatrix Ctrl+F</string>
+    <string name="search_hint">输入要搜索的对象（如：杯子）</string>
+    <string name="search_button">搜索</string>
+    <string name="camera_permission_required">需要相机权限才能使用此功能</string>
+    <string name="camera_permission_denied">相机权限被拒绝</string>
+</resources>
+
+
