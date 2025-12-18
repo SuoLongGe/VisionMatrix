@@ -4,10 +4,16 @@
 #include <android/bitmap.h>
 #include <android/asset_manager_jni.h>
 #include <android/log.h>
-#include <ncnn/ncnn.h>
+
+#include <ncnn/net.h>
+#include <ncnn/gpu.h>
+#include <ncnn/cpu.h>
+#include <ncnn/mat.h>
+#include <ncnn/platform.h>
+
 #include "yolov8.h"
 
-using Object = Yolov8::Object;
+using Object = ::Object;
 
 #define TAG "Yolov8NCNN"
 #define LOGD(...) __android_log_print(ANDROID_LOG_DEBUG, TAG, __VA_ARGS__)
@@ -19,61 +25,50 @@ static ncnn::Mutex lock;
 extern "C" {
 
 JNIEXPORT jint JNI_ONLOAD(JavaVM* vm, void* reserved) {
-    __android_log_print(ANDROID_LOG_DEBUG, TAG, "JNI_OnLoad");
     ncnn::create_gpu_instance();
     return JNI_VERSION_1_4;
 }
 
 JNIEXPORT void JNI_ONUNLOAD(JavaVM* vm, void* reserved) {
-    __android_log_print(ANDROID_LOG_DEBUG, TAG, "JNI_OnUnload");
     ncnn::destroy_gpu_instance();
 }
 
 JNIEXPORT jint JNICALL
 Java_com_tencent_ncnn_Yolov8_loadModel(JNIEnv* env, jobject thiz, jobject assetManager, jstring paramPath, jstring binPath) {
+    ncnn::MutexLockGuard g(lock);
     if (g_yolov8) {
         delete g_yolov8;
         g_yolov8 = 0;
     }
-
     const char* param_path = env->GetStringUTFChars(paramPath, 0);
     const char* bin_path = env->GetStringUTFChars(binPath, 0);
-
     AAssetManager* mgr = AAssetManager_fromJava(env, assetManager);
-    LOGD("loadModel %s %s", param_path, bin_path);
-
     g_yolov8 = new Yolov8;
     g_yolov8->load(mgr, param_path, bin_path);
-
     env->ReleaseStringUTFChars(paramPath, param_path);
     env->ReleaseStringUTFChars(binPath, bin_path);
-
     return 0;
 }
 
 JNIEXPORT jobjectArray JNICALL
 Java_com_tencent_ncnn_Yolov8_detect(JNIEnv* env, jobject thiz, jobject bitmap, jfloat threshold) {
-    if (!g_yolov8) {
-        LOGE("model not loaded");
-        return nullptr;
-    }
+    ncnn::MutexLockGuard g(lock);
+    if (!g_yolov8) return nullptr;
 
     AndroidBitmapInfo info;
     AndroidBitmap_getInfo(env, bitmap, &info);
-    if (info.format != ANDROID_BITMAP_FORMAT_RGBA_8888) {
-        LOGE("bitmap format not RGBA_8888");
-        return nullptr;
-    }
-
+    
     void* indata;
     AndroidBitmap_lockPixels(env, bitmap, &indata);
 
+    // 此时 in 只是引用了 indata 的指针，并未拷贝
     ncnn::Mat in = ncnn::Mat::from_pixels((unsigned char*)indata, ncnn::Mat::PIXEL_RGBA, info.width, info.height);
 
-    AndroidBitmap_unlockPixels(env, bitmap);
-
     std::vector<Object> objects;
+    // 必须在 unlock 之前调用，确保内存有效
     g_yolov8->detect(in, objects, threshold);
+
+    AndroidBitmap_unlockPixels(env, bitmap);
 
     jclass resultClass = env->FindClass("com/tencent/ncnn/Yolov8$DetectionResult");
     jmethodID resultConstructor = env->GetMethodID(resultClass, "<init>", "()V");
@@ -86,7 +81,6 @@ Java_com_tencent_ncnn_Yolov8_detect(JNIEnv* env, jobject thiz, jobject bitmap, j
     jfieldID heightField = env->GetFieldID(resultClass, "height", "F");
 
     jobjectArray resultArray = env->NewObjectArray(objects.size(), resultClass, nullptr);
-
     for (size_t i = 0; i < objects.size(); i++) {
         jobject result = env->NewObject(resultClass, resultConstructor);
         env->SetIntField(result, classIdField, objects[i].label);
@@ -98,9 +92,6 @@ Java_com_tencent_ncnn_Yolov8_detect(JNIEnv* env, jobject thiz, jobject bitmap, j
         env->SetFloatField(result, heightField, objects[i].rect.height);
         env->SetObjectArrayElement(resultArray, i, result);
     }
-
     return resultArray;
 }
-
 }
-
