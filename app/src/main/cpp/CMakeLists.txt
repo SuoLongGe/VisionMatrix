@@ -37,9 +37,12 @@ add_static_lib(GenericCodeGen)
 add_static_lib(glslang-default-resource-limits)
 
 # 源文件
+# 按功能拆分：detection/ (Ctrl+F) 与 new_feature/ (场景化行动卡片等)
 add_library(yolov8ncnn SHARED
-    yolov8ncnn_jni.cpp
-    yolov8.cpp
+    detection/yolov8ncnn_jni.cpp
+    detection/yolov8.cpp
+    new_feature/new_feature_jni.cpp
+    new_feature/processor.cpp
 )
 
 # 链接库

@@ -24,19 +24,29 @@ app/
 ├── src/
 │   ├── main/
 │   │   ├── java/com/visionmatrix/ctrlf/
-│   │   │   ├── MainActivity.kt          # 主Activity
-│   │   │   ├── YOLOv8Detector.kt        # YOLOv8检测器封装
-│   │   │   └── DetectionOverlayView.kt  # 检测框绘制视图
+│   │   │   ├── MainActivity.kt              # 主Activity
+│   │   │   ├── YOLOv8Detector.kt            # Ctrl+F 功能：YOLOv8检测器封装
+│   │   │   ├── DetectionOverlayView.kt      # 检测框绘制视图
+│   │   │   └── actioncards/                 # 🆕 场景化行动卡片（占位，可在此扩展）
+│   │   │       ├── ui/                      # UI 层 (Activity/Fragment/Adapter)
+│   │   │       ├── domain/                  # 用例/业务逻辑
+│   │   │       ├── data/                    # 数据源/仓库
+│   │   │       ├── components/              # 复用控件
+│   │   │       └── model/                   # 领域模型
 │   │   ├── cpp/
-│   │   │   ├── yolov8ncnn_jni.cpp       # JNI接口
-│   │   │   ├── yolov8.h                 # YOLOv8头文件
-│   │   │   ├── yolov8.cpp               # YOLOv8实现
-│   │   │   └── CMakeLists.txt           # CMake配置
-│   │   ├── assets/
-│   │   │   └── yolov8n_ncnn_model/      # 模型文件目录
+│   │   │   ├── CMakeLists.txt               # CMake配置
+│   │   │   ├── detection/                   # Ctrl+F 原生代码
+│   │   │   │   ├── yolov8.h
+│   │   │   │   ├── yolov8.cpp
+│   │   │   │   └── yolov8ncnn_jni.cpp
+│   │   │   └── new_feature/                 # 🆕 新功能原生代码（占位）
+│   │   │       ├── processor.cpp
+│   │   │       └── new_feature_jni.cpp
+│   │   ├── assets/                          # 模型与配置文件
+│   │   │   └── yolov8n_ncnn_model/
 │   │   │       ├── model.ncnn.param
 │   │   │       └── model.ncnn.bin
-│   │   └── res/                          # 资源文件
+│   │   └── res/                             # 资源文件
 └── build.gradle.kts
 ```
 

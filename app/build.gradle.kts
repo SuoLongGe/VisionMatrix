@@ -6,8 +6,6 @@ plugins {
 android {
     namespace = "com.visionmatrix.ctrlf"
     compileSdk = 34
-    
-    // 修改：指定使用 NDK r26 版本，以匹配 ncnn 库的编译环境
     ndkVersion = "26.1.10909125"
 
     defaultConfig {
@@ -34,10 +32,7 @@ android {
     buildTypes {
         release {
             isMinifyEnabled = false
-            proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
-            )
+            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
     }
     
@@ -77,6 +72,13 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.7.0")
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.7.0")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
+    
+    // 添加协程与 Google Play Services (ML Kit) 的桥接库
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.7.3")
+    
+    implementation("com.microsoft.onnxruntime:onnxruntime-android:latest.release")
+    implementation("com.google.mlkit:text-recognition:16.0.0")
+    implementation("com.google.mlkit:translate:17.0.1")
     
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")

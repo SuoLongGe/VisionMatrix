@@ -4,7 +4,6 @@
 
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-feature android:name="android.hardware.camera" android:required="true" />
-    <uses-feature android:name="android.hardware.camera.autofocus" android:required="false" />
 
     <application
         android:allowBackup="true"
@@ -14,18 +13,28 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.VisionMatrix"
         tools:targetApi="31">
+        
+        <!-- 首页 -->
         <activity
-            android:name=".MainActivity"
+            android:name="com.visionmatrix.MainActivity"
             android:exported="true"
-            android:screenOrientation="portrait"
-            android:theme="@style/Theme.VisionMatrix">
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <!-- 目标检测页面 (Ctrl+F) -->
+        <activity
+            android:name=".CtrlFActivity"
+            android:screenOrientation="portrait" />
+
+        <!-- 场景分析页面 -->
+        <activity
+            android:name="com.visionmatrix.actioncards.ScenarioActivity"
+            android:screenOrientation="portrait" />
+
     </application>
 
 </manifest>
-
-
